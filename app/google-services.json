@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "142896220364",
+    "firebase_url": "https://stock-market-game-39c79.firebaseio.com",
+    "project_id": "stock-market-game-39c79",
+    "storage_bucket": "stock-market-game-39c79.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:142896220364:android:64282c103ef36ec5f51a69",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "142896220364-eud00k3o3oorrs0l516vumfs6983hrcp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUyRw0OsKU2fbxpvLjQIsf0ce73t13ZKk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "142896220364-eud00k3o3oorrs0l516vumfs6983hrcp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
