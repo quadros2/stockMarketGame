@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,10 +19,31 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class TradingActivity extends AppCompatActivity {
 
+    String queryText;
+
+    EditText stockQuery;
+
+    Button searchButton;
+
+    //API CONSTANTS
+    private static final String API_KEY = BuildConfig.ApiKey;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trade_hub);
+
+        stockQuery = findViewById(R.id.searchQuery);
+        stockQuery.setVisibility(View.VISIBLE);
+
+        searchButton = findViewById(R.id.searchButton);
+        searchButton.setVisibility(View.VISIBLE);
+        searchButton.setOnClickListener(V -> {
+            queryText = stockQuery.getText().toString();
+
+
+        });
+
     }
 
 
