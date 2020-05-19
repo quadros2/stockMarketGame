@@ -15,35 +15,73 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.api.Api;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 
 public class TradingActivity extends AppCompatActivity {
 
-    String queryText;
-
-    EditText stockQuery;
+    RequestQueue requestQueue;
 
     Button searchButton;
 
-    //API CONSTANTS
-    private static final String API_KEY = BuildConfig.ApiKey;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trade_hub);
 
-        stockQuery = findViewById(R.id.searchQuery);
-        stockQuery.setVisibility(View.VISIBLE);
+        requestQueue = Volley.newRequestQueue(this);
 
         searchButton = findViewById(R.id.searchButton);
         searchButton.setVisibility(View.VISIBLE);
         searchButton.setOnClickListener(V -> {
-            queryText = stockQuery.getText().toString();
-
-
+            jsonParse();
         });
+    }
 
+    private void jsonParse() {
+        String url_str = "https://prime.exchangerate-api.com/v5/" + BuildConfig.ApiKey + "/latest/USD";
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url_str, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            String status = response.get("result").toString();
+                            System.out.println(status);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        requestQueue.add(jsonObjectRequest);
     }
 
 
