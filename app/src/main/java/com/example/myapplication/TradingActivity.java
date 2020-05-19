@@ -24,10 +24,12 @@ import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Api;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,6 +48,7 @@ public class TradingActivity extends AppCompatActivity {
 
     Button searchButton;
 
+    EditText queryText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,23 +57,28 @@ public class TradingActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
 
+        queryText = findViewById(R.id.searchQuery);
+        queryText.setVisibility(View.VISIBLE);
+
         searchButton = findViewById(R.id.searchButton);
         searchButton.setVisibility(View.VISIBLE);
         searchButton.setOnClickListener(V -> {
-            jsonParse();
+            getStock(queryText.getText().toString());
         });
+
     }
 
-    private void jsonParse() {
-        String url_str = "https://prime.exchangerate-api.com/v5/" + BuildConfig.ApiKey + "/latest/USD";
+    private void getStock(String queryText) {
+        String url_str = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + queryText +
+                "&apikey=" + BuildConfig.ApiKey;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url_str, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            String status = response.get("result").toString();
-                            System.out.println(status);
+                            JSONArray results = response.getJSONArray("bestMatches");
+                            System.out.println(results.length());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
