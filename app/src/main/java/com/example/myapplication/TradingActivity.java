@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Layout;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,7 +17,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -58,9 +61,6 @@ public class TradingActivity extends AppCompatActivity {
 
     EditText queryText;
 
-    String localPrice;
-
-    String localPreviousClose;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,6 +90,7 @@ public class TradingActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             LinearLayout parent = findViewById(R.id.searchResultsContainer);
+                            parent.removeAllViews();
                             JSONArray results = response.getJSONArray("bestMatches");
                             for (int i = 0; i < results.length(); i++) {
                                 String region = results.getJSONObject(i).get("4. region").toString();
@@ -97,23 +98,9 @@ public class TradingActivity extends AppCompatActivity {
                                 if (!(currency.equals("USD")) || !(region.equals("United States"))) {
                                     continue;
                                 }
-                                View stockChunckInflator = getLayoutInflater().inflate(R.layout.chunk_stock_listing,
-                                        parent, false);
-                                TextView stockName = stockChunckInflator.findViewById(R.id.stockName);
-                                stockName.setText(results.getJSONObject(i).get("2. name").toString());
-                                TextView stockSymbol = stockChunckInflator.findViewById(R.id.stockSymbol);
-                                stockSymbol.setText(results.getJSONObject(i).get("1. symbol").toString());
-                                TextView stockPrice = stockChunckInflator.findViewById(R.id.stockValue);
-                                getStockPrice(results.getJSONObject(i).get("1. symbol").toString());
-                                stockPrice.setText(localPrice);
-                                ImageView tickerArrow = stockChunckInflator.findViewById(R.id.tickerArrow);
-                                if (Double.parseDouble(localPreviousClose) < Double.parseDouble(localPrice)) {
-                                    tickerArrow.setImageResource(R.drawable.green_tick);
-                                    stockPrice.setTextColor(Color.GREEN);
-                                } else {
-                                    tickerArrow.setImageResource(R.drawable.red_tick);
-                                    stockPrice.setTextColor(Color.RED);
-                                }
+                                String name = results.getJSONObject(i).get("2. name").toString();
+                                String symbol = results.getJSONObject(i).get("1. symbol").toString();
+                                getStockPrice(symbol, name);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -128,7 +115,7 @@ public class TradingActivity extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
     }
 
-    private void getStockPrice(String symbol) {
+    private void getStockPrice(String symbol, String name) {
         String url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=" +
                 symbol + "&apikey=" + BuildConfig.ApiKey;
         JsonObjectRequest jsonObjectRequest1 = new JsonObjectRequest(Request.Method.GET, url, null,
@@ -136,9 +123,36 @@ public class TradingActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            String x = response.getJSONObject("Global Quote").get("05. price").toString();
-                            String y = response.getJSONObject("Global Quote").get("08. previous close").toString();
-                            passPrice(x, y);
+                            LinearLayout parent = findViewById(R.id.searchResultsContainer);
+                            View stockChunckInflator = getLayoutInflater().inflate(R.layout.chunk_stock_listing,
+                                    parent, false);
+                            TextView stockName = stockChunckInflator.findViewById(R.id.stockName);
+                            stockName.setText(name);
+                            TextView stockSymbol = stockChunckInflator.findViewById(R.id.stockSymbol);
+                            stockSymbol.setText(symbol);
+                            String price;
+                            String previousClose;
+                            if (response.has("Global Quote")) {
+                                price = response.getJSONObject("Global Quote").get("05. price").toString();
+                                previousClose = response.getJSONObject("Global Quote").get("08. previous close").toString();
+                                TextView stockPrice = stockChunckInflator.findViewById(R.id.stockValue);
+                                stockPrice.setText(price);
+                                ImageView tickerArrow = stockChunckInflator.findViewById(R.id.tickerArrow);
+                                if (Double.parseDouble(price) > Double.parseDouble(previousClose)) {
+                                    stockPrice.setTextColor(Color.GREEN);
+                                    tickerArrow.setImageResource(R.drawable.green_tick);
+                                } else {
+                                    stockPrice.setTextColor(Color.RED);
+                                    tickerArrow.setImageResource(R.drawable.red_tick);
+                                }
+                                Button buyButton = stockChunckInflator.findViewById(R.id.buyButton);
+                                buyButton.setOnClickListener(V -> {
+                                    changeToBuyStockUI(price, symbol);
+                                });
+                                parent.addView(stockChunckInflator);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "No Results. Try again", Toast.LENGTH_LONG).show();
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -152,11 +166,12 @@ public class TradingActivity extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest1);
     }
 
-    public void passPrice(String price, String previousClose) {
-        localPrice = price;
-        localPreviousClose = previousClose;
+    public void changeToBuyStockUI(String price, String symbol) {
+        Intent intent = new Intent(this, BuyStock.class);
+        intent.putExtra("price", price);
+        intent.putExtra("symbol", symbol);
+        startActivity(intent);
     }
-
 
     //onCreateOptionsMenu and onOptionsItemSelected are both methods used to create the toolbar!
     @Override
