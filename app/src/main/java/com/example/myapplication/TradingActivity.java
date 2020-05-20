@@ -1,14 +1,22 @@
 package com.example.myapplication;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Layout;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,6 +58,10 @@ public class TradingActivity extends AppCompatActivity {
 
     EditText queryText;
 
+    String localPrice;
+
+    String localPreviousClose;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,12 +75,12 @@ public class TradingActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.searchButton);
         searchButton.setVisibility(View.VISIBLE);
         searchButton.setOnClickListener(V -> {
-            getStock(queryText.getText().toString());
+            getStockListing(queryText.getText().toString());
         });
 
     }
 
-    private void getStock(String queryText) {
+    private void getStockListing(String queryText) {
         String url_str = "https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + queryText +
                 "&apikey=" + BuildConfig.ApiKey;
 
@@ -77,8 +89,32 @@ public class TradingActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            LinearLayout parent = findViewById(R.id.searchResultsContainer);
                             JSONArray results = response.getJSONArray("bestMatches");
-                            System.out.println(results.length());
+                            for (int i = 0; i < results.length(); i++) {
+                                String region = results.getJSONObject(i).get("4. region").toString();
+                                String currency = results.getJSONObject(i).get("8. currency").toString();
+                                if (!(currency.equals("USD")) || !(region.equals("United States"))) {
+                                    continue;
+                                }
+                                View stockChunckInflator = getLayoutInflater().inflate(R.layout.chunk_stock_listing,
+                                        parent, false);
+                                TextView stockName = stockChunckInflator.findViewById(R.id.stockName);
+                                stockName.setText(results.getJSONObject(i).get("2. name").toString());
+                                TextView stockSymbol = stockChunckInflator.findViewById(R.id.stockSymbol);
+                                stockSymbol.setText(results.getJSONObject(i).get("1. symbol").toString());
+                                TextView stockPrice = stockChunckInflator.findViewById(R.id.stockValue);
+                                getStockPrice(results.getJSONObject(i).get("1. symbol").toString());
+                                stockPrice.setText(localPrice);
+                                ImageView tickerArrow = stockChunckInflator.findViewById(R.id.tickerArrow);
+                                if (Double.parseDouble(localPreviousClose) < Double.parseDouble(localPrice)) {
+                                    tickerArrow.setImageResource(R.drawable.green_tick);
+                                    stockPrice.setTextColor(Color.GREEN);
+                                } else {
+                                    tickerArrow.setImageResource(R.drawable.red_tick);
+                                    stockPrice.setTextColor(Color.RED);
+                                }
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -90,6 +126,35 @@ public class TradingActivity extends AppCompatActivity {
             }
         });
         requestQueue.add(jsonObjectRequest);
+    }
+
+    private void getStockPrice(String symbol) {
+        String url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=" +
+                symbol + "&apikey=" + BuildConfig.ApiKey;
+        JsonObjectRequest jsonObjectRequest1 = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            String x = response.getJSONObject("Global Quote").get("05. price").toString();
+                            String y = response.getJSONObject("Global Quote").get("08. previous close").toString();
+                            passPrice(x, y);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        requestQueue.add(jsonObjectRequest1);
+    }
+
+    public void passPrice(String price, String previousClose) {
+        localPrice = price;
+        localPreviousClose = previousClose;
     }
 
 
