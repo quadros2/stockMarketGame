@@ -61,6 +61,8 @@ public class TradingActivity extends AppCompatActivity {
 
     EditText queryText;
 
+    LinearLayout parent;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,6 +80,8 @@ public class TradingActivity extends AppCompatActivity {
             getStockListing(queryText.getText().toString());
         });
 
+        parent = findViewById(R.id.searchResultsContainer);
+
     }
 
     private void getStockListing(String queryText) {
@@ -89,7 +93,6 @@ public class TradingActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            LinearLayout parent = findViewById(R.id.searchResultsContainer);
                             parent.removeAllViews();
                             JSONArray results = response.getJSONArray("bestMatches");
                             for (int i = 0; i < results.length(); i++) {
@@ -123,7 +126,6 @@ public class TradingActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            LinearLayout parent = findViewById(R.id.searchResultsContainer);
                             View stockChunckInflator = getLayoutInflater().inflate(R.layout.chunk_stock_listing,
                                     parent, false);
                             TextView stockName = stockChunckInflator.findViewById(R.id.stockName);
@@ -147,7 +149,7 @@ public class TradingActivity extends AppCompatActivity {
                                 }
                                 Button buyButton = stockChunckInflator.findViewById(R.id.buyButton);
                                 buyButton.setOnClickListener(V -> {
-                                    changeToBuyStockUI(price, symbol);
+                                    changeToBuyStockUI(price, symbol, name);
                                 });
                                 parent.addView(stockChunckInflator);
                             } else {
@@ -166,10 +168,11 @@ public class TradingActivity extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest1);
     }
 
-    public void changeToBuyStockUI(String price, String symbol) {
+    public void changeToBuyStockUI(String price, String symbol, String name) {
         Intent intent = new Intent(this, BuyStock.class);
         intent.putExtra("price", price);
         intent.putExtra("symbol", symbol);
+        intent.putExtra("name", name);
         startActivity(intent);
     }
 

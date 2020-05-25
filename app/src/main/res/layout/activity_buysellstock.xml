@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/nameOfPurchasedStock"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="Stock: "
@@ -19,7 +19,7 @@
         android:textColor="#2196F3" />
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/priceOfStockToBuy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -41,7 +41,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/minusShare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -49,7 +49,7 @@
             android:textSize="24sp" />
 
         <EditText
-            android:id="@+id/editText"
+            android:id="@+id/quantityShares"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -61,7 +61,7 @@
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/addShare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -78,7 +78,7 @@
         android:textColor="#2196F3" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/costOfStockPurchase"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
@@ -87,8 +87,8 @@
         android:textSize="36sp" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/purchaseButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="Place Order" />
 </LinearLayout>
