@@ -24,6 +24,10 @@ public class Stock {
         symbol = setSymbol;
     }
 
+    public Stock() {
+
+    }
+
     public String getDateAndTime() {
         return dateAndTime;
     }

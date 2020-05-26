@@ -10,15 +10,65 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.ListView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
 
 public class MainActivity extends AppCompatActivity {
+
+    List<Stock> stockList;
+
+    private FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+
+    private CollectionReference collectionReference = firebaseFirestore.collection(
+            FirebaseAuth.getInstance().getCurrentUser().getUid() + "'s stocks");
+
+    ListView portfolioStocks;
+
+    Button refreshPortfolio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        portfolioStocks = findViewById(R.id.stockPortfolioList);
+
+        stockList = new ArrayList<>();
+
+        refreshPortfolio = findViewById(R.id.refreshPortfolio);
+        refreshPortfolio.setOnClickListener(V -> {
+            onStart();
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        collectionReference.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                stockList.clear();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    Stock stock = documentSnapshot.toObject(Stock.class);
+                    stockList.add(stock);
+                }
+                PortfolioListAdapterActivity portfolioListAdapterActivity = new PortfolioListAdapterActivity(MainActivity.this,
+                        stockList);
+                portfolioStocks.setAdapter(portfolioListAdapterActivity);
+            }
+        });
     }
 
     @Override
