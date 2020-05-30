@@ -10,8 +10,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
 
     Button refreshPortfolio;
 
+    TextView portfolioValue;
+
+    public double sum;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +58,11 @@ public class MainActivity extends AppCompatActivity {
         refreshPortfolio.setOnClickListener(V -> {
             onStart();
         });
+
+        portfolioValue = findViewById(R.id.portfolioValue);
+
+        //double portfolioVal = caluclateNetGains() + Double.parseDouble(portfolioValue.getText().toString());
+        //portfolioValue.setText(String.valueOf(portfolioVal));
     }
 
     @Override

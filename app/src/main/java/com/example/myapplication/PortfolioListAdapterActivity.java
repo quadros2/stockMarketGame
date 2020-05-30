@@ -20,6 +20,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +37,8 @@ public class PortfolioListAdapterActivity extends ArrayAdapter<Stock> {
     private List<Stock> stockList;
     private RequestQueue requestQueue = Volley.newRequestQueue(getContext());
     public String currentPrice;
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    DocumentReference documentReference;
 
     public PortfolioListAdapterActivity(Activity appContext, List<Stock> stockList) {
         super(appContext, R.layout.chunk_portfolio_stock, stockList);
@@ -51,6 +58,7 @@ public class PortfolioListAdapterActivity extends ArrayAdapter<Stock> {
         TextView percentageChange = listItems.findViewById(R.id.percentageChange);
         Button sellButton = listItems.findViewById(R.id.sellButton);
 
+
         Stock stock = stockList.get(position);
 
         String url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=" +
@@ -65,6 +73,20 @@ public class PortfolioListAdapterActivity extends ArrayAdapter<Stock> {
                             currentPrice = response.getJSONObject("Global Quote").get("05. price").toString();
                             double netGains = (Double.parseDouble(currentPrice) - Double.parseDouble(stock.getPriceBought()))
                                     * Double.parseDouble(stock.getQuantity());
+                            System.out.println(Double.parseDouble(currentPrice));
+                            System.out.println(Double.parseDouble(stock.getPriceBought()));
+                            System.out.println(netGains);
+                            DocumentReference netgain = firebaseFirestore.collection(FirebaseAuth.getInstance().getCurrentUser().getUid() + "'s netWorth")
+                                    .document("Net Worth");
+                            netgain.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    String getNetGain = documentSnapshot.getString("net worth");
+                                    double getnetGainD = Double.parseDouble(getNetGain);
+                                    getnetGainD += netGains;
+                                    netgain.update("net worth", getnetGainD);
+                                }
+                            });
                             priceChange.setText("$" + netGains);
                             if (netGains < 0) {
                                 priceChange.setTextColor(Color.RED);
@@ -78,6 +100,11 @@ public class PortfolioListAdapterActivity extends ArrayAdapter<Stock> {
                             } else {
                                 percentageChange.setTextColor(Color.GREEN);
                             }
+                            sellButton.setOnClickListener(V -> {
+                                firebaseFirestore.collection(FirebaseAuth.getInstance().getCurrentUser().getUid() +
+                                        "'s stocks").document(stock.getSymbol() + ": Bought on " + stock.getDateAndTime())
+                                        .delete();
+                            });
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

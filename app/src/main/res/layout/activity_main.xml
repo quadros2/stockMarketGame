@@ -13,9 +13,23 @@
         android:layout_height="61dp"
         android:text="Refresh" />
 
+    <TextView
+        android:id="@+id/portfolioValue"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:gravity="center"
+        android:text="10000.00"
+        android:textSize="50sp" />
+
+    <TextView
+        android:id="@+id/stocksinportfolio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stocks:" />
+
     <ListView
         android:id="@+id/stockPortfolioList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="558dp" />
 
 </LinearLayout>
