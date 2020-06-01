@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
-
+//A.K.A. portfolio code
 public class MainActivity extends AppCompatActivity {
 
     List<Stock> stockList;
