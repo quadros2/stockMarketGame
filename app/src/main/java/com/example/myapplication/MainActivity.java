@@ -19,6 +19,8 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,13 +39,17 @@ public class MainActivity extends AppCompatActivity {
     private CollectionReference collectionReference = firebaseFirestore.collection(
             FirebaseAuth.getInstance().getCurrentUser().getUid() + "'s stocks");
 
+    private DocumentReference documentReference = firebaseFirestore.collection(
+            FirebaseAuth.getInstance().getCurrentUser().getUid() + "'s netWorth")
+            .document("Net Worth");
+
     ListView portfolioStocks;
 
     Button refreshPortfolio;
 
     TextView portfolioValue;
 
-    public double sum;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         portfolioValue = findViewById(R.id.portfolioValue);
+        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                double numbs = documentSnapshot.getDouble("net worth");
+                portfolioValue.setText(String.valueOf(numbs));
+            }
+        });
 
         //double portfolioVal = caluclateNetGains() + Double.parseDouble(portfolioValue.getText().toString());
         //portfolioValue.setText(String.valueOf(portfolioVal));

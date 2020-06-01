@@ -4,10 +4,10 @@
     <item android:id="@+id/myPortfolio"
         android:title="My Portfolio" />
 
-    <item android:id="@+id/signOut"
-        android:title="Sign Out" />
-
     <item android:id="@+id/tradingHub"
         android:title="Trading Hub" />
+
+    <item android:id="@+id/signOut"
+        android:title="Sign Out" />
 
 </menu>

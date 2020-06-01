@@ -73,16 +73,12 @@ public class PortfolioListAdapterActivity extends ArrayAdapter<Stock> {
                             currentPrice = response.getJSONObject("Global Quote").get("05. price").toString();
                             double netGains = (Double.parseDouble(currentPrice) - Double.parseDouble(stock.getPriceBought()))
                                     * Double.parseDouble(stock.getQuantity());
-                            System.out.println(Double.parseDouble(currentPrice));
-                            System.out.println(Double.parseDouble(stock.getPriceBought()));
-                            System.out.println(netGains);
                             DocumentReference netgain = firebaseFirestore.collection(FirebaseAuth.getInstance().getCurrentUser().getUid() + "'s netWorth")
                                     .document("Net Worth");
                             netgain.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    String getNetGain = documentSnapshot.getString("net worth");
-                                    double getnetGainD = Double.parseDouble(getNetGain);
+                                    double getnetGainD = documentSnapshot.getDouble("net worth");
                                     getnetGainD += netGains;
                                     netgain.update("net worth", getnetGainD);
                                 }

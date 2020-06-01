@@ -90,7 +90,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void createPortfolio() {
-        Map<String, Object> netWorth = new HashMap<>();
+        Map<String, String> netWorth = new HashMap<>();
         netWorth.put("net worth", "10000.00");
         netWorth.put("confirmed", "yes");
         netWorthRef.set(netWorth)
